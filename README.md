@@ -25,8 +25,9 @@
     * **Level 3-4**：包含小括號的四則混合運算。
     * **Level 5**：單位換算應用題（公里與公尺）。
 
-##〔點擊開始進行遊戲〕(https://weddy1225-blip.github.io/AI-math01/)
-
+## 🚀 立即開始遊戲
+點擊下方連結即可開始挑戰：
+👉 **[點擊這裡開始遊戲](https://weddy1225-blip.github.io/Science01/](https://weddy1225-blip.github.io/AI-math01/)**
 ---
 
 ## 🛠️ 技術架構
