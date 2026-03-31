@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>數學拆彈專家</title>
+  <style>
+    :root { --bg: #0d1117; --panel: #161b22; --ai: #00ff41; --user: #58a6ff; --danger: #f85149; --text: #c9d1d9; }
+    body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+    #game-container { display: flex; width: 95vw; max-width: 1000px; height: 85vh; gap: 20px; position: relative; }
+    
+    /* 左側面板固定 */
+    #side-bar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px; }
+    .card { background: var(--panel); border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; }
+    .val { font-size: 32px; font-weight: bold; font-family: monospace; color: var(--ai); }
+    
+    /* 右側聊天區 */
+    #main-chat { flex-grow: 1; background: var(--panel); border: 1px solid #30363d; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; }
+    #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .m { max-width: 85%; padding: 12px 18px; border-radius: 10px; line-height: 1.5; font-size: 1.1em; }
+    .ai { align-self: flex-start; background: #21262d; border-left: 5px solid var(--ai); color: #e6edf3; }
+    .me { align-self: flex-end; background: var(--user); color: white; }
+
+    /* 控制列 */
+    #control { padding: 15px; background: #0d1117; display: flex; gap: 10px; }
+    input { flex-grow: 1; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; color: white; outline: none; }
+    button { padding: 0 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+    #send-btn { background: var(--user); color: white; }
+    #skip-btn { background: var(--danger); color: white; }
+
+    /* 遮罩層 */
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 20, 30, 0.98); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; text-align: center; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="start-screen" class="overlay">
+    <h1 style="color: var(--ai);">💣 數學拆彈專家</h1>
+    <div style="text-align: left; background: #21262d; padding: 20px; border-radius: 10px; margin: 20px 0;">
+      <ul>
+        <li>🎯 任務：解除 5 顆數字炸彈。</li>
+        <li>⏳ 限時：每題 60 秒，超時視同失敗。</li>
+        <li>❤️ 能量：你有 3 顆心，答錯或跳過會扣心。</li>
+        <li>⏩ 跳過：可換題，但會消耗 1 顆心。</li>
+      </ul>
+    </div>
+    <button id="start-btn" style="background: var(--ai); padding: 15px 50px; font-size: 20px;">開始拆彈 🚀</button>
+  </div>
+
+  <div id="result-screen" class="overlay hidden">
+    <h1 id="result-title" style="font-size: 40px;">遊戲結束</h1>
+    <p id="result-desc" style="font-size: 20px; margin-bottom: 20px;"></p>
+    <button onclick="location.reload()" style="background: var(--user); padding: 15px 50px; font-size: 20px; color: white;">再挑戰一次 🔄</button>
+  </div>
+
+  <div id="side-bar">
+    <div class="card"><div>⏳ 拆彈倒數</div><div id="timer" class="val">60</div></div>
+    <div class="card"><div>❤️ 防禦能量</div><div id="hp-box" style="font-size: 24px; color: var(--danger);">❤️❤️❤️</div></div>
+    <div class="card"><div>🚀 關卡進度</div><div id="lv-text" class="val">1 / 5</div></div>
+  </div>
+
+  <div id="main-chat">
+    <div id="chat-box"></div>
+    <div id="control">
+      <button id="skip-btn" disabled>跳過</button>
+      <input type="text" id="user-input" placeholder="請先點擊開始..." disabled>
+      <button id="send-btn" disabled>發送</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 🔗 重要：請更換為你部署後的最新 URL
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbx68y3gdKWogn3-LOJDQjKek9AKutVdlO7_d3hadxDIrJw0hsIWRlrvrdYNtcJA_l94yQ/exec'; 
+  
+  let currentLevel = 1, hp = 3, timeLeft = 60, timerInterval, memory = [];
+
+  function updateUI() {
+    document.getElementById('lv-text').textContent = `${currentLevel} / 5`;
+    document.getElementById('hp-box').textContent = '❤️'.repeat(hp);
+  }
+
+  document.getElementById('start-btn').onclick = function() {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('user-input').disabled = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('skip-btn').disabled = false;
+    updateUI();
+    callAI("玩家已啟動系統。請開始詳細說明規則並給出第 1 題。");
+    startTimer();
+  };
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 60;
+    document.getElementById('timer').textContent = timeLeft;
+    document.getElementById('timer').style.color = 'var(--ai)';
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('timer').textContent = timeLeft;
+      if (timeLeft <= 0) handleFailure("時間耗盡");
+    }, 1000);
+  }
+
+  function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.className = `m ${sender === 'user' ? 'me' : 'ai'}`;
+    div.innerText = text;
+    const box = document.getElementById('chat-box');
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    memory.push({ "role": sender === 'user' ? "user" : "model", "parts": [{ "text": text }] });
+  }
+
+  async function callAI(customInput) {
+    const text = customInput || document.getElementById('user-input').value;
+    if (!text && !customInput) return;
+    if (!customInput) { addMessage(text, 'user'); document.getElementById('user-input').value = ''; }
+
+    try {
+      // 這裡使用了特別的連線方式，解決跨網域(CORS)問題
+      const res = await fetch(GAS_URL, { 
+        method: 'POST', 
+        mode: 'no-cors', // 有些環境下需要 no-cors，但會讀不到內容。若失敗請改回 cors
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ history: memory }) 
+      });
+
+      // 因為 no-cors 無法讀取內容，正常的 GAS 串接應使用預設 cors 搭配正確的部署權限
+      // 如果你剛才看到連線異常，請確保部署時「誰可以存取」是「所有人」
+      const normalRes = await fetch(GAS_URL, { 
+        method: 'POST', 
+        body: JSON.stringify({ history: memory }) 
+      });
+      const data = await normalRes.json();
+      addMessage(data.reply, 'ai');
+      
+      if (data.reply.includes("正確") || data.reply.includes("跳過")) {
+        if (currentLevel < 5) { currentLevel++; updateUI(); startTimer(); }
+        else if (data.reply.includes("遊戲結束")) { endGame(true); }
+      }
+    } catch (e) { 
+      addMessage("❌ 系統連線異常。請確認：\n1. 部署權限設為『所有人』。\n2. 每次修改 Code.gs 後都有部署『新版本』。", 'ai'); 
+    }
+  }
+
+  function handleFailure(reason) {
+    hp--; updateUI();
+    if (hp <= 0) endGame(false);
+    else {
+      addMessage(`[系統通知：${reason}，扣 1 HP]`, 'me');
+      callAI("跳過上一題，直接換下一題。");
+      startTimer();
+    }
+  }
+
+  function endGame(isWin) {
+    clearInterval(timerInterval);
+    document.getElementById('result-screen').classList.remove('hidden');
+    document.getElementById('result-title').innerText = isWin ? "🏆 任務成功！" : "💥 任務失敗";
+    document.getElementById('result-desc').innerText = isWin ? "解除所有炸彈！" : "生命耗盡，再接再厲！";
+  }
+
+  document.getElementById('send-btn').onclick = () => callAI();
+  document.getElementById('skip-btn').onclick = () => handleFailure("跳過");
+  document.getElementById('user-input').onkeypress = (e) => { if(e.key==='Enter') callAI(); };
+</script>
+</body>
+</html>
