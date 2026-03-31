@@ -8,16 +8,16 @@
     body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
     #game-container { display: flex; width: 95vw; max-width: 1000px; height: 85vh; gap: 20px; position: relative; }
     
-    /* 左側面板固定 */
+    /* 左側固定面板 */
     #side-bar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px; }
     .card { background: var(--panel); border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; }
     .val { font-size: 32px; font-weight: bold; font-family: monospace; color: var(--ai); }
     
-    /* 右側聊天區 */
+    /* 右側對話區 */
     #main-chat { flex-grow: 1; background: var(--panel); border: 1px solid #30363d; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; }
     #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
     .m { max-width: 85%; padding: 12px 18px; border-radius: 10px; line-height: 1.5; font-size: 1.1em; }
-    .ai { align-self: flex-start; background: #21262d; border-left: 5px solid var(--ai); color: #e6edf3; }
+    .ai { align-self: flex-start; background: #21262d; border-left: 5px solid var(--ai); }
     .me { align-self: flex-end; background: var(--user); color: white; }
 
     /* 控制列 */
@@ -27,7 +27,7 @@
     #send-btn { background: var(--user); color: white; }
     #skip-btn { background: var(--danger); color: white; }
 
-    /* 遮罩層 */
+    /* 遮罩畫面 */
     .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 20, 30, 0.98); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; text-align: center; }
     .hidden { display: none !important; }
   </style>
@@ -39,24 +39,24 @@
     <h1 style="color: var(--ai);">💣 數學拆彈專家</h1>
     <div style="text-align: left; background: #21262d; padding: 20px; border-radius: 10px; margin: 20px 0;">
       <ul>
-        <li>🎯 任務：解除 5 顆數字炸彈。</li>
-        <li>⏳ 限時：每題 60 秒，超時視同失敗。</li>
+        <li>🎯 任務：連續解除 5 題數學炸彈。</li>
+        <li>⏳ 限時：每題 60 秒，逾時自動扣血。</li>
         <li>❤️ 能量：你有 3 顆心，答錯或跳過會扣心。</li>
-        <li>⏩ 跳過：可換題，但會消耗 1 顆心。</li>
+        <li>⏩ 跳過：遇到難題可跳過，但會消耗 1 顆心。</li>
       </ul>
     </div>
-    <button id="start-btn" style="background: var(--ai); padding: 15px 50px; font-size: 20px;">開始拆彈 🚀</button>
+    <button id="start-btn" style="background: var(--ai); padding: 15px 50px; font-size: 20px;">啟動任務 🚀</button>
   </div>
 
   <div id="result-screen" class="overlay hidden">
     <h1 id="result-title" style="font-size: 40px;">遊戲結束</h1>
     <p id="result-desc" style="font-size: 20px; margin-bottom: 20px;"></p>
-    <button onclick="location.reload()" style="background: var(--user); padding: 15px 50px; font-size: 20px; color: white;">再挑戰一次 🔄</button>
+    <button onclick="location.reload()" style="background: var(--user); padding: 15px 50px; font-size: 20px; color: white;">再次嘗試 🔄</button>
   </div>
 
   <div id="side-bar">
     <div class="card"><div>⏳ 拆彈倒數</div><div id="timer" class="val">60</div></div>
-    <div class="card"><div>❤️ 防禦能量</div><div id="hp-box" style="font-size: 24px; color: var(--danger);">❤️❤️❤️</div></div>
+    <div class="card"><div>❤️ 防禦能量</div><div id="hp-box" style="font-size: 24px;">❤️❤️❤️</div></div>
     <div class="card"><div>🚀 關卡進度</div><div id="lv-text" class="val">1 / 5</div></div>
   </div>
 
@@ -64,14 +64,14 @@
     <div id="chat-box"></div>
     <div id="control">
       <button id="skip-btn" disabled>跳過</button>
-      <input type="text" id="user-input" placeholder="請先點擊開始..." disabled>
+      <input type="text" id="user-input" placeholder="點擊開始..." disabled autocomplete="off">
       <button id="send-btn" disabled>發送</button>
     </div>
   </div>
 </div>
 
 <script>
-  // 🔗 重要：請更換為你部署後的最新 URL
+  // 🔗 重要：請替換成您最新部署的網址
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbx68y3gdKWogn3-LOJDQjKek9AKutVdlO7_d3hadxDIrJw0hsIWRlrvrdYNtcJA_l94yQ/exec'; 
   
   let currentLevel = 1, hp = 3, timeLeft = 60, timerInterval, memory = [];
@@ -87,7 +87,7 @@
     document.getElementById('send-btn').disabled = false;
     document.getElementById('skip-btn').disabled = false;
     updateUI();
-    callAI("玩家已啟動系統。請開始詳細說明規則並給出第 1 題。");
+    callAI("玩家已就位，請開始任務並出第 1 題。");
     startTimer();
   };
 
@@ -119,29 +119,25 @@
     if (!customInput) { addMessage(text, 'user'); document.getElementById('user-input').value = ''; }
 
     try {
-      // 這裡使用了特別的連線方式，解決跨網域(CORS)問題
       const res = await fetch(GAS_URL, { 
         method: 'POST', 
-        mode: 'no-cors', // 有些環境下需要 no-cors，但會讀不到內容。若失敗請改回 cors
-        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({ history: memory }) 
       });
-
-      // 因為 no-cors 無法讀取內容，正常的 GAS 串接應使用預設 cors 搭配正確的部署權限
-      // 如果你剛才看到連線異常，請確保部署時「誰可以存取」是「所有人」
-      const normalRes = await fetch(GAS_URL, { 
-        method: 'POST', 
-        body: JSON.stringify({ history: memory }) 
-      });
-      const data = await normalRes.json();
+      const data = await res.json();
       addMessage(data.reply, 'ai');
       
-      if (data.reply.includes("正確") || data.reply.includes("跳過")) {
-        if (currentLevel < 5) { currentLevel++; updateUI(); startTimer(); }
-        else if (data.reply.includes("遊戲結束")) { endGame(true); }
+      // 判定邏輯
+      if (data.reply.includes("正確") || data.reply.includes("已跳過")) {
+        if (currentLevel < 5) {
+          currentLevel++;
+          updateUI();
+          startTimer();
+        } else if (data.reply.includes("遊戲結束")) {
+          endGame(true);
+        }
       }
-    } catch (e) { 
-      addMessage("❌ 系統連線異常。請確認：\n1. 部署權限設為『所有人』。\n2. 每次修改 Code.gs 後都有部署『新版本』。", 'ai'); 
+    } catch (e) {
+      addMessage("❌ 系統連線異常，請檢查 GAS 權限。", 'ai');
     }
   }
 
@@ -149,8 +145,8 @@
     hp--; updateUI();
     if (hp <= 0) endGame(false);
     else {
-      addMessage(`[系統通知：${reason}，扣 1 HP]`, 'me');
-      callAI("跳過上一題，直接換下一題。");
+      addMessage(`[警告：${reason}，消耗能量]`, 'me');
+      callAI(`因為${reason}，請直接給下一題。`);
       startTimer();
     }
   }
@@ -159,7 +155,7 @@
     clearInterval(timerInterval);
     document.getElementById('result-screen').classList.remove('hidden');
     document.getElementById('result-title').innerText = isWin ? "🏆 任務成功！" : "💥 任務失敗";
-    document.getElementById('result-desc').innerText = isWin ? "解除所有炸彈！" : "生命耗盡，再接再厲！";
+    document.getElementById('result-desc').innerText = isWin ? "你解除了所有威脅！" : "防禦能量耗盡，下次加油。";
   }
 
   document.getElementById('send-btn').onclick = () => callAI();
