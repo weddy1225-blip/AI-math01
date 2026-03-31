@@ -3,266 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>數學拆彈專家 - 小四版</title>
+    <title>數學拆彈專家</title>
     <style>
-        body { 
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; 
-            background-color: #1a1a1a; 
-            color: white; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-        }
-        #game-container { 
-            background: #2d2d2d; 
-            padding: 2rem; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            width: 90%; 
-            max-width: 500px; 
-            text-align: center; 
-        }
-        .hidden { display: none; }
-        .heart { color: #ff4d4d; font-size: 1.5rem; letter-spacing: 5px; }
-        #timer { font-size: 2.5rem; font-weight: bold; color: #ffcc00; margin: 15px 0; }
-        
-        input[type="text"] { 
-            padding: 12px; 
-            width: 85%; 
-            font-size: 1.2rem; 
-            border-radius: 8px; 
-            border: 2px solid #444; 
-            background: #ffffff;
-            color: #1a1a1a;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* 按鈕基礎樣式 */
-        button { 
-            padding: 14px 24px; 
-            font-size: 1.1rem; 
-            cursor: pointer; 
-            border-radius: 8px; 
-            border: none; 
-            color: #ffffff; 
-            transition: all 0.3s ease; 
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        /* 開始畫面按鈕 - 強化對比度 */
-        .primary-btn {
-            background-color: #3498db; 
-            width: 100%;
-            margin-top: 10px;
-            box-shadow: 0 4px 0 #2980b9;
-        }
-        .primary-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 #1c5982;
-        }
-        .primary-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #1c5982;
-        }
-
-        /* 遊戲中按鈕佈局 */
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-        .btn-confirm { background-color: #2ecc71; flex: 2; order: 2; } /* 右側綠色 */
-        .btn-confirm:hover { background-color: #27ae60; }
-        
-        .btn-skip { background-color: #e67e22; flex: 1; order: 1; } /* 左側橘色 */
-        .btn-skip:hover { background-color: #d35400; }
-
-        .btn-restart { background-color: #9b59b6; width: 100%; margin-top: 20px; }
-
-        #history-list { 
-            text-align: left; 
-            background: #3d3d3d; 
-            padding: 15px; 
-            border-radius: 8px; 
-            font-size: 1rem; 
-            max-height: 200px; 
-            overflow-y: auto;
-            line-height: 1.6;
-        }
-        .critical { color: #ff0000; animation: blink 0.5s infinite; }
-        @keyframes blink { 50% { opacity: 0.3; } }
-        #question-text { min-height: 3em; margin: 20px 0; font-size: 1.5rem; line-height: 1.4; }
+        body { background-color: #1a1a1a; color: white; font-family: 'Microsoft JhengHei', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        #game-container { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 90%; max-width: 550px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .screen { display: none; }
+        .active { display: block; }
+        h1 { color: #5dade2; margin-bottom: 20px; }
+        .rule-list, .history-list { text-align: left; background: #383838; padding: 20px; border-radius: 12px; margin-bottom: 20px; line-height: 1.8; }
+        .history-item { border-bottom: 1px solid #555; padding: 10px 0; font-size: 0.95rem; }
+        #question-text { font-size: 1.6rem; margin: 25px 0; color: #f4d03f; min-height: 80px; display: flex; align-items: center; justify-content: center; font-weight: bold; padding: 0 10px; }
+        input { width: 100%; box-sizing: border-box; padding: 15px; font-size: 1.5rem; border-radius: 8px; border: none; margin-bottom: 20px; text-align: center; background: #fff; color: #000; }
+        .btn-main { width: 100%; padding: 15px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn-start { background: #ecf0f1; color: #2c3e50; }
+        .btn-submit { background: #27ae60; color: white; }
+        .btn-skip { background: #e67e22; color: white; width: 40%; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.4rem; }
+        #hearts-display { color: #e74c3c; letter-spacing: 5px; }
+        #timer { font-size: 2.5rem; font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="start-screen">
+    <div id="start-screen" class="screen active">
         <h1>🎯 數學拆彈專家</h1>
-        <div style="text-align: left; display: inline-block; background: #3d3d3d; padding: 20px; border-radius: 10px; border-left: 5px solid #3498db; margin-bottom: 20px;">
-            <p>🎯 總共有 5 個關卡，難度隨關卡提升。</p>
-            <p>❤️ 你有 3 顆心，答錯、超時或跳過扣 1 顆心。</p>
-            <p>⏳ 每題只有 60 秒拆彈時間。</p>
-            <p>🏁 完成 5 關即獲勝，心歸零則結束。</p>
+        <div class="rule-list">
+            🎯 總共有 5 個關卡，難度隨關卡提升。<br>
+            ❤️ 生命值：<span id="hearts-preview" style="color:#e74c3c">❤️❤️❤️</span><br>
+            ⏳ 答錯、超時或跳過都會扣 1 顆心。<br>
+            每題只有 60 秒拆彈時間。<br>
+            ⌨️ 提示：輸入答案後按 <b>Enter</b> 即可快速送出！
         </div>
-        <button class="primary-btn" onclick="startGame()">開始挑戰</button>
+        <button class="btn-main btn-start" onclick="startGame()">開始挑戰</button>
     </div>
 
-    <div id="game-play" class="hidden">
-        <div id="status-bar" style="display: flex; justify-content: space-between; align-items: center;">
-            <span id="hearts-display" class="heart"></span>
-            <span id="stage-display" style="font-weight: bold; background: #444; padding: 4px 12px; border-radius: 20px;">關卡 1/5</span>
+    <div id="game-screen" class="screen">
+        <div class="stats">
+            <span id="hearts-display">❤️❤️❤️</span>
+            <span id="stage-display">關卡 1/5</span>
         </div>
-        <div id="timer">--s</div>
-        <h2 id="question-text">連線中...</h2>
-        <input type="text" id="user-answer" placeholder="請輸入純數字" autocomplete="off" disabled>
-        
-        <div class="button-group">
-            <button class="btn-confirm" onclick="checkAnswer()">確認拆解</button>
-            <button class="btn-skip" onclick="handleSkip()">跳過</button>
+        <div id="timer">60s</div>
+        <div id="question-text">📡 任務接收中...</div>
+        <input type="number" id="answer-input" placeholder="請輸入純數字" inputmode="numeric" onkeyup="handleKeyUp(event)">
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="btn-main btn-skip" onclick="skipQuestion()">跳過</button>
+            <button class="btn-main btn-submit" style="width: 58%;" onclick="checkAnswer()">確認拆解</button>
         </div>
     </div>
 
-    <div id="end-screen" class="hidden">
-        <h1 id="end-title">遊戲結束</h1>
-        <div id="history-area">
-            <h3 style="color: #ffcc00;">📝 任務題目回顧：</h3>
-            <div id="history-list"></div>
-        </div>
-        <button class="btn-restart" onclick="location.reload()">再挑戰一次</button>
+    <div id="result-screen" class="screen">
+        <h1 id="result-title">任務結束</h1>
+        <p>📝 題目回顧（方便抄寫算式）：</p>
+        <div id="history-container" class="history-list"></div>
+        <button class="btn-main btn-start" onclick="location.reload()">再挑戰一次</button>
     </div>
 </div>
 
 <script>
+    let currentStage = 1;
+    let hearts = 3;
+    let timeLeft = 60;
+    let correctAnswer = "";
+    let timerInterval;
+    let questionHistory = []; 
     const GAS_URL = "https://script.google.com/macros/s/AKfycbx68y3gdKWogn3-LOJDQjKek9AKutVdlO7_d3hadxDIrJw0hsIWRlrvrdYNtcJA_l94yQ/exec"; 
 
-    let gameState = {
-        stage: 1,
-        hearts: 3,
-        timeLeft: 60,
-        currentAnswer: "",
-        history: [],
-        timerInterval: null
-    };
-
-    // 監聽 Enter 鍵
-    document.getElementById('user-answer').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') checkAnswer();
-    });
-
     function startGame() {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('game-play').classList.remove('hidden');
-        loadStage();
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        loadQuestion();
     }
 
-    async function getQuestion(stage) {
-        clearInterval(gameState.timerInterval);
-        document.getElementById('timer').innerText = "--s";
-        document.getElementById('question-text').innerText = "📡 讀取第 " + stage + " 道數位鎖...";
-        document.getElementById('user-answer').disabled = true;
-
+    async function loadQuestion() {
+        const qText = document.getElementById('question-text');
+        qText.innerHTML = "📡 連線中...";
+        document.getElementById('answer-input').value = "";
+        document.getElementById('answer-input').focus();
+        
         try {
-            const response = await fetch(`${GAS_URL}?stage=${stage}`);
-            const data = await response.json();
-            
-            gameState.currentAnswer = data.answer.toString().trim();
-            document.getElementById('question-text').innerText = data.display;
-            
-            document.getElementById('user-answer').disabled = false;
-            document.getElementById('user-answer').focus();
-            
-            // 題目顯示後才啟動計時
+            const resp = await fetch(`${GAS_URL}?stage=${currentStage}`);
+            const data = await resp.json();
+            qText.innerText = data.display; 
+            correctAnswer = data.answer.toString();
+            questionHistory.push({ q: data.display, a: data.answer });
             startCountdown();
-            
-            gameState.history.push({ question: data.display, answer: data.answer });
         } catch (e) {
-            document.getElementById('question-text').innerText = "⚠️ 通訊中斷！請檢查網路。";
+            qText.innerText = "⚠️ 通訊異常，請重新整理。";
         }
+    }
+
+    function handleKeyUp(e) {
+        if (e.key === "Enter") checkAnswer();
     }
 
     function startCountdown() {
-        gameState.timeLeft = 60;
-        const timerEl = document.getElementById('timer');
-        timerEl.innerText = "60s";
-        timerEl.classList.remove('critical');
-
-        gameState.timerInterval = setInterval(() => {
-            gameState.timeLeft--;
-            timerEl.innerText = gameState.timeLeft + "s";
-            if (gameState.timeLeft <= 10) timerEl.classList.add('critical');
-            if (gameState.timeLeft <= 0) {
-                clearInterval(gameState.timerInterval);
-                handleFailure("超時引爆！");
-            }
+        clearInterval(timerInterval);
+        timeLeft = 60;
+        updateUI();
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateUI();
+            if (timeLeft <= 0) { clearInterval(timerInterval); handleWrong("⏰ 時間到！"); }
         }, 1000);
     }
 
-    async function loadStage() {
-        if (gameState.stage > 5) return endGame(true);
-        updateUI();
-        document.getElementById('user-answer').value = "";
-        await getQuestion(gameState.stage);
+    function updateUI() {
+        document.getElementById('timer').innerText = timeLeft + "s";
+        let heartStr = "";
+        for(let i=1; i<=3; i++) {
+            heartStr += (i <= hearts) ? "❤️" : "🖤";
+        }
+        document.getElementById('hearts-display').innerText = heartStr;
     }
 
     function checkAnswer() {
-        const userInput = document.getElementById('user-answer').value.trim();
-        if (userInput === "" || document.getElementById('user-answer').disabled) return;
+        const input = document.getElementById('answer-input').value;
+        if (input === "") return;
 
-        if (userInput === gameState.currentAnswer) {
-            alert("✅ 解除成功！");
-            gameState.stage++;
-            if (gameState.stage > 5) endGame(true);
-            else loadStage();
-        } else {
-            alert("❌ 密碼錯誤！");
-            handleFailure();
-        }
+        if (input === correctAnswer) {
+            clearInterval(timerInterval);
+            if (currentStage < 5) {
+                alert("✅ 成功拆解！進入下一關");
+                currentStage++;
+                document.getElementById('stage-display').innerText = `關卡 ${currentStage}/5`;
+                loadQuestion();
+            } else { showResult(true); }
+        } else { handleWrong("❌ 密碼錯誤！"); }
     }
 
-    function handleSkip() {
-        if(confirm("跳過此題會損失 1 顆心喔！確定嗎？")) handleFailure();
-    }
-
-    function handleFailure() {
-        clearInterval(gameState.timerInterval);
-        gameState.hearts--;
+    function handleWrong(msg) {
+        hearts--;
         updateUI();
-        
-        if (gameState.hearts <= 0) endGame(false);
+        if (hearts <= 0) { showResult(false); }
         else {
-            gameState.stage++;
-            if (gameState.stage > 5) endGame(true);
-            else loadStage();
+            alert(msg + " 💔 失去一顆心！");
+            loadQuestion();
         }
     }
 
-    function updateUI() {
-        document.getElementById('hearts-display').innerHTML = "❤️".repeat(gameState.hearts);
-        document.getElementById('stage-display').innerText = `關卡 ${Math.min(gameState.stage, 5)}/5`;
-    }
+    function skipQuestion() { handleWrong("⏭️ 已跳過題目。"); }
 
-    function endGame(isWin) {
-        clearInterval(gameState.timerInterval);
-        document.getElementById('game-play').classList.add('hidden');
-        document.getElementById('end-screen').classList.remove('hidden');
+    function showResult(isWin) {
+        clearInterval(timerInterval);
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+        document.getElementById('result-title').innerText = isWin ? "🏆 成功解救城市！" : "💥 任務失敗";
         
-        const title = document.getElementById('end-title');
-        title.innerText = isWin ? "🎉 任務成功！你是拆彈專家" : "💥 任務失敗，炸彈爆炸了";
-        title.style.color = isWin ? "#2ecc71" : "#ff4d4d";
-        
-        const list = document.getElementById('history-list');
-        list.innerHTML = gameState.history.map((item) => 
-            `<div style="margin-bottom:10px; border-bottom:1px dashed #555; padding-bottom:5px;">
-                <b>${item.question}</b><br>
-                <span style="color:#2ecc71">正確答案：${item.answer}</span>
-            </div>`
-        ).join("");
+        const container = document.getElementById('history-container');
+        container.innerHTML = questionHistory.map((item, index) => 
+            `<div class="history-item"><b>第${index+1}題：</b>${item.q} <span style="color:#2ecc71; font-weight:bold;">${item.a}</span></div>`
+        ).join('');
     }
 </script>
 
