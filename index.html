@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>數學拆彈專家：8大任務 (純數字版)</title>
+    <title>數學拆彈專家：中文單位終極版</title>
     <style>
         :root {
             --bg: #0f172a; --panel: #1e293b; --accent: #fbbf24;
@@ -17,7 +17,7 @@
         }
 
         #game-container {
-            width: 620px; min-height: 520px;
+            width: 620px; min-height: 540px;
             background: var(--panel); padding: 40px;
             border-radius: 40px; border: 8px solid #334155;
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
@@ -32,7 +32,7 @@
         .lv-tag { background: #334155; padding: 8px 18px; border-radius: 20px; color: var(--accent); font-weight: bold; }
 
         #timer-display {
-            font-size: 4.5rem; font-family: 'Courier New', monospace;
+            font-size: 4rem; font-family: 'Courier New', monospace;
             font-weight: 900; color: var(--success); margin-bottom: 10px;
         }
         .urgent { color: var(--danger) !important; animation: shake 0.1s infinite; display: inline-block; }
@@ -40,36 +40,33 @@
         .q-panel {
             background: rgba(15, 23, 42, 0.7); border-radius: 30px;
             padding: 35px 40px; margin-bottom: 30px;
-            border: 4px solid transparent; min-height: 200px;
+            border: 4px solid transparent; min-height: 180px;
             display: flex; flex-direction: column; justify-content: center;
             align-items: center;
         }
         
         #question-text { 
-            font-size: 2.2rem; font-weight: 800; line-height: 1.5; width: 100%;
+            font-size: 2.2rem; font-weight: 800; line-height: 1.4; width: 100%;
             text-align: left; word-break: break-all;
         }
         
-        #feedback-msg { margin-top: 15px; font-weight: bold; font-size: 1.4rem; height: 30px; text-align: center;}
+        #feedback-msg { margin-top: 15px; font-weight: bold; font-size: 1.3rem; height: 30px; text-align: center;}
 
-        /* 核心修改：移除數字輸入框的箭頭 */
         input[type=number] {
             width: 80%; padding: 18px; font-size: 2.8rem;
             border: 6px solid var(--accent); background: #000;
             color: var(--accent); border-radius: 20px; text-align: center; outline: none;
-            -moz-appearance: textfield; /* Firefox */
+            -moz-appearance: textfield;
         }
 
-        /* Chrome, Safari, Edge, Opera 隱藏箭頭 */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+            -webkit-appearance: none; margin: 0;
         }
 
-        .dots { display: flex; justify-content: center; gap: 12px; margin-top: 35px; flex-wrap: wrap; }
-        .dot { width: 18px; height: 18px; border-radius: 50%; background: #475569; }
-        .dot.active { background: var(--success); box-shadow: 0 0 15px var(--success); transform: scale(1.2); }
+        .dots { display: flex; justify-content: center; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
+        .dot { width: 16px; height: 16px; border-radius: 50%; background: #475569; }
+        .dot.active { background: var(--success); box-shadow: 0 0 12px var(--success); transform: scale(1.1); }
 
         .btn-main {
             background: #f97316; color: white; border: none;
@@ -79,10 +76,11 @@
         }
         .btn-main:active { transform: translateY(6px); box-shadow: 0 4px 0 #9a3412; }
 
-        #report-screen { display: none; width: 100%; padding: 10px 0; }
-        .report-card { background: #0f172a; border-radius: 15px; padding: 18px; margin-bottom: 12px; text-align: left; border-left: 8px solid; }
+        #report-screen { display: none; width: 100%; }
+        .report-card { background: #0f172a; border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: left; border-left: 8px solid; position: relative; }
         .card-ok { border-color: var(--success); }
         .card-fail { border-color: var(--danger); }
+        .card-score { position: absolute; right: 15px; top: 15px; font-weight: 900; font-size: 1.2rem; color: var(--accent); }
 
         @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
         .shake-ui { animation: shake 0.3s; border-color: var(--danger) !important; }
@@ -94,7 +92,7 @@
     <div id="welcome-ui">
         <div style="font-size: 4rem; margin-bottom: 20px;">💣</div>
         <h2 style="font-size: 2.2rem; margin-bottom: 10px;">數學拆彈專家</h2>
-        <p style="color: #94a3b8; margin-bottom: 40px; font-size: 1.1rem;">8 個關卡，挑戰 100 分上限！</p>
+        <p style="color: #94a3b8; margin-bottom: 40px; font-size: 1.1rem;">8 關卡挑戰 100 分<br>答錯扣心，該題分數折半（含魔王題）</p>
         <button class="btn-main" onclick="startGame()">開始任務</button>
     </div>
 
@@ -114,27 +112,27 @@
     </div>
 
     <div id="report-screen">
-        <h2 id="report-title" style="font-size: 2.5rem; margin-top: 0;">任務結果</h2>
-        <div style="background: rgba(251, 191, 36, 0.1); padding: 20px; border-radius: 20px; margin-bottom: 20px;">
-            <span style="font-size: 1.2rem; display: block; margin-bottom: 5px;">最終總分</span>
-            <h3 id="final-score-display" style="color: var(--accent); font-size: 3.5rem; margin: 0; line-height: 1;">0</h3>
+        <h2 id="report-title" style="font-size: 2.2rem; margin-top: 0;">任務結果</h2>
+        <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 20px; margin-bottom: 20px;">
+            <span style="font-size: 1rem; display: block; margin-bottom: 5px;">最終總結得分</span>
+            <h3 id="final-score-display" style="color: var(--accent); font-size: 3rem; margin: 0; line-height: 1;">0</h3>
         </div>
-        <div id="report-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px;"></div>
+        <div id="report-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px;"></div>
         
-        <div id="boss-challenge-area" style="margin: 30px 0; display: none;">
-            <p style="color: var(--accent); font-weight: bold; font-size: 1.2rem;">⚡ 發現隱藏的魔王炸彈！⚡<br><span style="font-size: 0.9rem;">(挑戰成功額外獲得 50 分)</span></p>
-            <button class="btn-main" style="font-size: 1.5rem; padding: 15px 45px;" onclick="startBossMode()">挑戰魔王</button>
+        <div id="boss-challenge-area" style="margin: 20px 0; display: none;">
+            <p style="color: var(--accent); font-weight: bold;">⚡ 偵測到魔王炸彈核心！⚡<br><small>(答對加 50 分，失誤過則折半)</small></p>
+            <button class="btn-main" style="font-size: 1.5rem; padding: 12px 40px;" onclick="startBossMode()">挑戰魔王</button>
         </div>
         
-        <button onclick="location.reload()" style="padding:12px 30px; border-radius:25px; border:none; background:#475569; color:white; cursor:pointer; font-weight:bold;">再玩一次</button>
-        <button onclick="clearHistory()" style="background:none; border:none; color:#64748b; font-size:0.8rem; cursor:pointer; display:block; margin: 15px auto;">清除出題紀錄</button>
+        <button onclick="location.reload()" style="padding:10px 25px; border-radius:20px; border:none; background:#475569; color:white; cursor:pointer; font-weight:bold; margin-top: 10px;">重新開始任務</button>
     </div>
 </div>
 
 <script>
     let state = {
-        hp: 3, step: 1, solved: 0, time: 60, currentQ: '', currentAns: 0,
-        score: 0, history: [], timer: null, isBoss: false
+        hp: 3, step: 1, time: 60, currentQ: '', currentAns: 0,
+        score: 0, history: [], timer: null, isBoss: false,
+        penaltyActive: false 
     };
 
     const ui = {
@@ -154,30 +152,22 @@
         scoreDisplay: document.getElementById('current-score')
     };
 
-    // 防止滾輪調整數字
-    ui.input.addEventListener('wheel', function(e) { e.preventDefault(); }, { passive: false });
+    ui.input.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
 
     function getHistory() {
-        return JSON.parse(localStorage.getItem('math_bomb_history_clean') || "[]");
+        return JSON.parse(localStorage.getItem('math_bomb_v5_history') || "[]");
     }
 
     function saveToHistory(qText) {
         let history = getHistory();
         history.push(qText);
-        if(history.length > 200) history.shift();
-        localStorage.setItem('math_bomb_history_clean', JSON.stringify(history));
-    }
-
-    function clearHistory() {
-        localStorage.removeItem('math_bomb_history_clean');
-        alert("出題紀錄已清除！");
-        location.reload();
+        if(history.length > 100) history.shift();
+        localStorage.setItem('math_bomb_v5_history', JSON.stringify(history));
     }
 
     function generateRawQ(step) {
         const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
         let q, ans;
-
         if (state.isBoss) {
             let ma = rand(200, 500), mb = rand(3, 6), mc = rand(30, 50), md = rand(4, 8);
             q = `魔王題：(${ma} - ${mb} × ${mc}) ÷ ${md} = ?`;
@@ -189,10 +179,10 @@
                 case 2: let a2 = rand(5000, 9999), b2 = rand(1200, 4800); q = `${a2} - ${b2} = ?`; ans = a2 - b2; break;
                 case 3: let a3 = rand(25, 65), b3 = rand(15, 35), c3 = rand(3, 8); q = `(${a3} + ${b3}) × ${c3} = ?`; ans = (a3 + b3) * c3; break;
                 case 4: let a4 = rand(200, 400), b4 = rand(5, 9), c4 = rand(12, 22); q = `${a4} - ${b4} × ${c4} = ?`; ans = a4 - (b4 * c4); break;
-                case 5: let kg5 = rand(2, 6), g5 = rand(150, 850), addG = rand(100, 600); q = `${kg5}公斤${g5}公克 + ${addG}公克 = (?)公克`; ans = (kg5 * 1000) + g5 + addG; break;
-                case 6: let k6 = rand(1, 6), m6 = rand(200, 600), subM = rand(80, 180); q = `${k6}公里${m6}公尺 - ${subM}公尺 = (?)公尺`; ans = (k6 * 1000) + m6 - subM; break;
-                case 7: let l7 = rand(3, 9), ml7 = rand(150, 750), addMl = rand(150, 450); q = `${l7}公升${ml7}毫升 + ${addMl}毫升 = (?)毫升`; ans = (l7 * 1000) + ml7 + addMl; break;
-                case 8: let w8 = rand(8, 16), h8 = rand(7, 14); q = `長方形的長是 ${w8}cm，寬是 ${h8}cm，面積是幾平方公分？`; ans = w8 * h8; break;
+                case 5: let kg5 = rand(2, 6), g5 = rand(150, 850), addG = rand(100, 600); q = `${kg5}公斤 ${g5}公克 + ${addG}公克 = (?)公克`; ans = (kg5 * 1000) + g5 + addG; break;
+                case 6: let k6 = rand(1, 6), m6 = rand(200, 600), subM = rand(80, 180); q = `${k6}公里 ${m6}公尺 - ${subM}公尺 = (?)公尺`; ans = (k6 * 1000) + m6 - subM; break;
+                case 7: let l7 = rand(3, 9), ml7 = rand(150, 750), addMl = rand(150, 450); q = `${l7}公升 ${ml7}毫升 + ${addMl}毫升 = (?)毫升`; ans = (l7 * 1000) + ml7 + addMl; break;
+                case 8: let w8 = rand(8, 16), h8 = rand(7, 14); q = `長方形的長是 ${w8}公分，寬是 ${h8}公分，面積是幾平方公分？`; ans = w8 * h8; break;
             }
         }
         return { text: q, ans: ans };
@@ -200,13 +190,9 @@
 
     function generateUniqueQ(step) {
         let history = getHistory();
-        let result;
-        let attempt = 0;
-        do {
-            result = generateRawQ(step);
-            attempt++;
-        } while (history.includes(result.text) && attempt < 30);
-
+        let result, attempt = 0;
+        do { result = generateRawQ(step); attempt++; } 
+        while (history.includes(result.text) && attempt < 30);
         saveToHistory(result.text);
         state.currentQ = result.text;
         state.currentAns = result.ans;
@@ -221,7 +207,8 @@
     }
 
     function startBossMode() {
-        state.isBoss = true; state.step = 999;
+        state.isBoss = true; 
+        state.penaltyActive = false; 
         ui.report.style.display = 'none';
         ui.game.style.display = 'block';
         ui.lv.innerText = "🚨 魔王挑戰 🚨";
@@ -234,25 +221,44 @@
         state.timer = setInterval(() => {
             state.time--; ui.timer.innerText = state.time;
             ui.timer.className = state.time <= 10 ? 'urgent' : '';
-            if (state.time <= 0) { recordHistory("超時"); handleError("時間到！引爆！"); }
+            if (state.time <= 0) { 
+                recordHistory("超時", 0); 
+                handleError("時間到！自動跳過"); 
+            }
         }, 1000);
     }
 
-    function recordHistory(userVal) {
-        state.history.push({ q: state.currentQ, correct: state.currentAns, user: userVal, status: userVal == state.currentAns ? 'ok' : 'fail' });
+    function recordHistory(userVal, scoreEarned) {
+        state.history.push({ 
+            q: state.currentQ, 
+            correct: state.currentAns, 
+            user: userVal, 
+            status: userVal == state.currentAns ? 'ok' : 'fail',
+            score: scoreEarned 
+        });
     }
 
     function handleError(msg) {
-        state.hp--; ui.hp.innerText = "❤️".repeat(Math.max(0, state.hp));
+        state.hp--; 
+        state.penaltyActive = true; 
+        ui.hp.innerText = "❤️".repeat(Math.max(0, state.hp));
         ui.feedback.innerText = msg; ui.feedback.style.color = 'var(--danger)';
         ui.panel.classList.add('shake-ui');
         setTimeout(() => ui.panel.classList.remove('shake-ui'), 400);
-        if (state.hp <= 0) endGame(); else setTimeout(nextTask, 1200);
+        
+        if (state.hp <= 0) endGame(); 
+        else setTimeout(nextTask, 1200);
     }
 
     function nextTask() {
         if (!state.isBoss && state.step > 8) { endGame(); return; }
-        ui.input.value = ''; ui.feedback.innerText = '';
+        ui.input.value = '';
+        if (state.penaltyActive) {
+            ui.feedback.innerText = state.isBoss ? "⚠️ 魔王補考：獎金折半！" : "⚠️ 補考挑戰：得分折半！";
+            ui.feedback.style.color = '#fb923c';
+        } else {
+            ui.feedback.innerText = '';
+        }
         if (!state.isBoss) ui.lv.innerText = `任務 ${state.step} / 8`;
         generateUniqueQ(state.step);
         ui.input.focus();
@@ -263,42 +269,59 @@
         clearInterval(state.timer);
         ui.game.style.display = 'none';
         ui.report.style.display = 'block';
-        const isWin = state.solved >= 8;
         
-        document.getElementById('report-title').innerText = isWin ? "🏆 任務成功" : "💥 任務失敗";
-        document.getElementById('report-title').style.color = isWin ? "var(--success)" : "var(--danger)";
+        const baseCorrectCount = state.history.filter(h => h.status === 'ok' && !h.q.includes('魔王')).length;
+        
+        document.getElementById('report-title').innerText = state.hp <= 0 ? "💥 任務失敗" : "🏆 任務成功";
+        document.getElementById('report-title').style.color = state.hp <= 0 ? "var(--danger)" : "var(--success)";
         document.getElementById('final-score-display').innerText = state.score;
-        
+
         ui.reportList.innerHTML = state.history.map(item => `
             <div class="report-card ${item.status === 'ok' ? 'card-ok' : 'card-fail'}">
-                <div style="margin-bottom:5px; font-weight:bold;">${item.q}</div>
-                <div style="font-size:0.95rem">正確：${item.correct} | 回答：${item.user}</div>
+                <div class="card-score">${item.status === 'ok' ? '+' + item.score : '0'}</div>
+                <div style="font-weight:bold; padding-right: 60px;">${item.q}</div>
+                <div style="font-size:0.9rem; color: #94a3b8;">正確答案：${item.correct} | 你的回答：${item.user}</div>
             </div>
         `).join('');
-        
-        if (isWin && !state.isBoss) ui.bossArea.style.display = 'block';
+
+        if (baseCorrectCount >= 8 && !state.isBoss && state.hp > 0) ui.bossArea.style.display = 'block';
         else ui.bossArea.style.display = 'none';
     }
 
     ui.input.onkeyup = (e) => {
         if (e.key === 'Enter' && ui.input.value !== "") {
             const val = parseFloat(ui.input.value);
-            recordHistory(val);
+            
             if (val === state.currentAns) {
-                state.solved++;
+                let p;
                 if (state.isBoss) {
-                    state.score += 50;
-                    ui.scoreDisplay.innerText = state.score;
-                    endGame();
-                    return;
+                    p = state.penaltyActive ? 25 : 50;
+                } else {
+                    p = state.penaltyActive ? 6.25 : 12.5;
                 }
-                state.score += 12.5; 
+                
+                state.score += p;
+                state.score = Math.round(state.score * 100) / 100;
+                recordHistory(val, p);
+                
+                if (!state.isBoss) {
+                    document.querySelectorAll('.dot')[state.step - 1].classList.add('active');
+                    state.step++;
+                }
+
                 ui.scoreDisplay.innerText = state.score;
-                document.querySelectorAll('.dot')[state.step - 1].classList.add('active');
-                ui.feedback.innerText = "正確！"; ui.feedback.style.color = 'var(--success)';
-                state.step++; setTimeout(nextTask, 800);
+                ui.feedback.innerText = "正確！獲得 " + p + " 分"; 
+                ui.feedback.style.color = 'var(--success)';
+                state.penaltyActive = false; 
+                
+                if (state.isBoss) {
+                    setTimeout(endGame, 1000);
+                } else {
+                    setTimeout(nextTask, 800);
+                }
             } else {
-                handleError("錯誤！");
+                recordHistory(val, 0);
+                handleError("錯誤！炸彈能量外洩");
             }
         }
     };
