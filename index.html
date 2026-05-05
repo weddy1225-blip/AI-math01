@@ -26,6 +26,16 @@
 
         #game-ui { display: none; width: 100%; }
 
+        /* 歡迎頁面樣式 */
+        .prep-box {
+            background: rgba(251, 191, 36, 0.1);
+            border: 2px dashed var(--accent);
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            color: var(--accent);
+        }
+
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .score-box { color: var(--accent); font-weight: bold; font-size: 1.2rem; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 10px; }
         .hp { font-size: 2.2rem; }
@@ -56,12 +66,6 @@
             width: 80%; padding: 18px; font-size: 2.8rem;
             border: 6px solid var(--accent); background: #000;
             color: var(--accent); border-radius: 20px; text-align: center; outline: none;
-            -moz-appearance: textfield;
-        }
-
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
         }
 
         .dots { display: flex; justify-content: center; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
@@ -89,13 +93,24 @@
 <body>
 
 <div id="game-container">
+    <!-- 歡迎頁面 -->
     <div id="welcome-ui">
-        <div style="font-size: 4rem; margin-bottom: 20px;">💣</div>
-        <h2 style="font-size: 2.2rem; margin-bottom: 10px;">數學拆彈專家</h2>
-        <p style="color: #94a3b8; margin-bottom: 40px; font-size: 1.1rem;">8 關卡挑戰 100 分<br>答錯扣心，該題分數折半（含魔王題）</p>
+        <div style="font-size: 4rem; margin-bottom: 10px;">💣</div>
+        <h2 style="font-size: 2.2rem; margin-bottom: 15px;">數學拆彈專家</h2>
+        
+        <div class="prep-box">
+            <p style="margin: 0; font-size: 1.2rem; font-weight: bold;">📝 專家前置準備：</p>
+            <p style="margin: 5px 0 0 0; font-size: 1rem; line-height: 1.5;">建議先準備好 <b>「紙和筆」</b><br>這將幫助你應付複雜的引信運算！</p>
+        </div>
+
+        <p style="color: #94a3b8; margin-bottom: 30px; font-size: 1rem;">
+            共計 8 關，目標總分 100 分<br>
+            答錯扣除心臟，該題補考分數折半
+        </p>
         <button class="btn-main" onclick="startGame()">開始任務</button>
     </div>
 
+    <!-- 遊戲主介面 -->
     <div id="game-ui">
         <div class="header">
             <div class="score-box">得分: <span id="current-score">0</span></div>
@@ -107,10 +122,11 @@
             <div id="question-text">載入中...</div>
             <div id="feedback-msg"></div>
         </div>
-        <input type="number" id="ans-input" placeholder="請鍵入答案" step="any" onwheel="this.blur()">
+        <input type="number" id="ans-input" placeholder="請鍵入答案" step="any">
         <div class="dots" id="dots-container"></div>
     </div>
 
+    <!-- 結算報告 -->
     <div id="report-screen">
         <h2 id="report-title" style="font-size: 2.2rem; margin-top: 0;">任務結果</h2>
         <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 20px; margin-bottom: 20px;">
@@ -152,6 +168,7 @@
         scoreDisplay: document.getElementById('current-score')
     };
 
+    // 禁用滾輪修改數值
     ui.input.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
 
     function getHistory() {
@@ -218,6 +235,8 @@
 
     function startTimer() {
         state.time = 60; clearInterval(state.timer);
+        ui.timer.innerText = state.time;
+        ui.timer.className = '';
         state.timer = setInterval(() => {
             state.time--; ui.timer.innerText = state.time;
             ui.timer.className = state.time <= 10 ? 'urgent' : '';
@@ -232,7 +251,7 @@
         state.history.push({ 
             q: state.currentQ, 
             correct: state.currentAns, 
-            user: userVal, 
+            user: userVal === "" ? "未填寫" : userVal, 
             status: userVal == state.currentAns ? 'ok' : 'fail',
             score: scoreEarned 
         });
